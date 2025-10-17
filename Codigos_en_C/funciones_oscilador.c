@@ -342,7 +342,8 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
 #define CARPETA_FIJA "ESCALA"
 #endif
 
-void procesar_trayectorias_carpeta(double K, int N, int N_start
+
+void procesar_trayectorias_carpeta(double K, int N_start
     #ifdef FIXED
         , double F_cte
     #endif
@@ -364,8 +365,20 @@ void procesar_trayectorias_carpeta(double K, int N, int N_start
             if (ext && strcmp(ext, ".txt") == 0) {
                 char nombre_archivo[512];
                 snprintf(nombre_archivo, sizeof(nombre_archivo), "%s/%s", carpeta, entry->d_name);
+                
+                // Construir ruta al archivo de parámetros
+                char archivo_parametros[512];
+                snprintf(archivo_parametros, sizeof(archivo_parametros), "PARAMETROS/%.1f/%s/%s", K, CARPETA_FIJA, entry->d_name);
+                
+                // Leer N desde el archivo de parámetros
+                int N = leer_N_desde_parametros(archivo_parametros);
+                if (N <= 0) {
+                    printf("Error: No se pudo leer N del archivo %s\n", archivo_parametros);
+                    continue;
+                }
+                
                 #ifdef FIXED
-                procesar_trayectoria(nombre_archivo, N_start, N, K,F_cte);
+                procesar_trayectoria(nombre_archivo, N_start, N, K, F_cte);
                 #else
                 procesar_trayectoria(nombre_archivo, N_start, N, K);
                 #endif
@@ -376,6 +389,28 @@ void procesar_trayectorias_carpeta(double K, int N, int N_start
     closedir(dir);
 }
 
+// Función auxiliar para leer N desde el archivo de parámetros
+int leer_N_desde_parametros(const char *archivo_parametros) {
+    FILE *file = fopen(archivo_parametros, "r");
+    if (!file) {
+        printf("No se pudo abrir el archivo de parámetros: %s\n", archivo_parametros);
+        return -1;
+    }
+    
+    char line[256];
+    int N = -1;
+    
+    while (fgets(line, sizeof(line), file)) {
+        // Buscar la línea que contiene "N"
+        if (strncmp(line, "N ", 2) == 0) {
+            sscanf(line, "N %d", &N);
+            break;
+        }
+    }
+    
+    fclose(file);
+    return N;
+}
 #ifdef FIXED
 #define CARPETA_IMPORTANTE "FIJOS/RES_IMPORTANTES"
 #else

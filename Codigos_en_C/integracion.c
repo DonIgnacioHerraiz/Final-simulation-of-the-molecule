@@ -144,9 +144,13 @@ void verlet_trayectoria(char* filename_input, double kb, double Temperatura, dou
         }
     }
     
-    for (int i = 0; i < 3*N; i++) {
-            x_0[i] = 2*x_nuevo[i]*fran()-x_nuevo[i];
-            v_0[i] = 2*v_nuevo[i]*fran()-v_nuevo[i];
+    for (int i = 0; i < N; i++) {
+            x_0[3*i] = i;
+            x_0[3*i+1] = 0;
+            x_0[3*i+2] = 0;
+            v_0[3*i] = 0;
+            v_0[3*i+1] = 0;
+            v_0[3*i+2] = 0;
         }
 
 

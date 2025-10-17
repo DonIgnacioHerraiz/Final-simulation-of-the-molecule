@@ -36,10 +36,13 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
     #endif
                           );
 
-void procesar_trayectorias_carpeta(double K, int N, int N_start
-    #ifdef FIXED
-        , double F_cte
-    #endif
-) ;
+#ifdef FIXED
+void procesar_trayectorias_carpeta(double K, int N_start, double F_cte);
+#else
+void procesar_trayectorias_carpeta(double K, int N_start);
+#endif
+
+// Cabecera de la función auxiliar para leer parámetros
+int leer_N_desde_parametros(const char *archivo_parametros);
 
 void generar_grafica(double K);
