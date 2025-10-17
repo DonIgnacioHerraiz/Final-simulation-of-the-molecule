@@ -1,54 +1,24 @@
 #include "funciones_oscilador.h"
-
 #include <sys/stat.h> // mkdir
 #include <sys/types.h>
 
-/***********************************************************************
- *  Funcion: void Fuerza_verlet(int N, double x[], double F[], double K)
- *  
- *  Descripción:
- *  Calcula las fuerzas entre partículas consecutivas de un polímero 
- *  unido por resortes (modelo armónico tipo "bond-stretching"), de acuerdo 
- *  con el potencial:
- *      V = (1/2) * K * (|r_{i+1} - r_i| - b)^2
- *  
- *  Si la macro FIXED está definida, se asume que la primera partícula 
- *  está fija (no se calcula su fuerza) y se añade una fuerza constante 
- *  F_cte sobre la última partícula en la dirección z.
- *  
- *  Parámetros:
- *  ------------------------------------------------------------------
- *   N  : número de partículas del polímero.
- *   x[]: vector de posiciones de tamaño 3*N, en el formato:
- *        (x1, y1, z1, x2, y2, z2, ..., xN, yN, zN)
- *   F[]: vector de fuerzas de tamaño 3*N, en el mismo formato que x[].
- *        La función sobrescribe este vector con las fuerzas calculadas.
- *   K  : constante elástica (k_e) del potencial.
- *  
- *  Si FIXED está definida:
- *   F_cte : fuerza constante aplicada sobre la última partícula 
- *            en la componente z (solo sobre z_N).
- *  
- *  Funcionamiento:
- *  ------------------------------------------------------------------
- *  - Se recorren los enlaces entre partículas consecutivas (i, i+1).
- *  - Se calcula la distancia r = |r_{i+1} - r_i|.
- *  - Se aplica la fuerza de tipo Hooke:
- *        F_i   +=  K*(r - b)*(r_{i+1} - r_i)/r
- *        F_{i+1} = -F_i
- *  - Si FIXED está definida, la primera partícula no se modifica 
- *    (su fuerza se mantiene en cero).
- ***********************************************************************/
+#define K_BENDING 10.0
+#define THETA_0 M_PI_2 // Ángulo de equilibrio de 90 grados
 
-
-#ifndef FIXED
-
+// Declaración condicional basada en FIXED
+#ifdef FIXED
+void Fuerza_verlet(int N, double x[], double F[], double K, double F_cte)
+#else
 void Fuerza_verlet(int N, double x[], double F[], double K)
+#endif
 {
-    // Inicializar todas las fuerzas a cero
+    // 1. INICIALIZAR TODAS LAS FUERZAS A CERO
+    // ========================================
     for (int i = 0; i < 3*N; i++)
         F[i] = 0.0;
 
+    // 2. CALCULAR FUERZAS DE ESTIRAMIENTO
+    // ====================================
     for (int i = 0; i < N - 1; i++) {
         int i3 = 3*i;
         int j3 = 3*(i+1);
@@ -58,60 +28,91 @@ void Fuerza_verlet(int N, double x[], double F[], double K)
         double dz = x[j3+2] - x[i3+2];
 
         double r = sqrt(dx*dx + dy*dy + dz*dz);
+        if (r == 0.0) continue;
+        
         double fac = K * (r - L_0) / r;
 
         double Fx = fac * dx;
         double Fy = fac * dy;
         double Fz = fac * dz;
 
-        F[i3]   +=  Fx;
-        F[i3+1] +=  Fy;
-        F[i3+2] +=  Fz;
+        F[i3]   += Fx;
+        F[i3+1] += Fy;
+        F[i3+2] += Fz;
 
-        F[j3]   -=  Fx;
-        F[j3+1] -=  Fy;
-        F[j3+2] -=  Fz;
-    }
-}
-
-#else
-
-void Fuerza_verlet(int N, double x[], double F[], double K, double F_cte)
-{
-    // Dejar F de la primera partícula intacta (está fija)
-    for (int i = 3; i < 3*N; i++)
-        F[i] = 0.0;
-
-    for (int i = 1; i < N - 1; i++) {
-        int i3 = 3*i;
-        int j3 = 3*(i+1);
-
-        double dx = x[j3]   - x[i3];
-        double dy = x[j3+1] - x[i3+1];
-        double dz = x[j3+2] - x[i3+2];
-
-        double r = sqrt(dx*dx + dy*dy + dz*dz);
-        double fac = K * (r - L_0) / r;
-
-        double Fx = fac * dx;
-        double Fy = fac * dy;
-        double Fz = fac * dz;
-
-        F[i3]   +=  Fx;
-        F[i3+1] +=  Fy;
-        F[i3+2] +=  Fz;
-
-        F[j3]   -=  Fx;
-        F[j3+1] -=  Fy;
-        F[j3+2] -=  Fz;
+        F[j3]   -= Fx;
+        F[j3+1] -= Fy;
+        F[j3+2] -= Fz;
     }
 
-    // Añadir fuerza constante sobre la última partícula en dirección z
+    // 3. MANEJO ESPECIAL PARA MODO FIXED
+    // ===================================
+    #ifdef FIXED
+    // Aplicar fuerza constante sobre la última partícula en dirección Z
     F[3*(N-1) + 2] += F_cte;
+    
+    // Forzar que la primera partícula tenga fuerza cero (está fija)
+    F[0] = 0.0;
+    F[1] = 0.0;
+    F[2] = 0.0;
+    #endif
+
+    // 4. AÑADIR FUERZAS DE FLEXIÓN (WORM-LIKE CHAIN MODEL)
+    // =====================================================
+    #ifdef WLCM
+    for (int i = 1; i < N - 1; i++) {
+        int im1_3 = 3 * (i - 1);
+        int i_3   = 3 * i;
+        int ip1_3 = 3 * (i + 1);
+
+        double r_i_x = x[i_3]     - x[im1_3];
+        double r_i_y = x[i_3 + 1] - x[im1_3 + 1];
+        double r_i_z = x[i_3 + 2] - x[im1_3 + 2];
+
+        double r_ip1_x = x[ip1_3]     - x[i_3];
+        double r_ip1_y = x[ip1_3 + 1] - x[i_3 + 1];
+        double r_ip1_z = x[ip1_3 + 2] - x[i_3 + 2];
+        
+        double mag_ri  = sqrt(r_i_x*r_i_x + r_i_y*r_i_y + r_i_z*r_i_z);
+        double mag_rip1 = sqrt(r_ip1_x*r_ip1_x + r_ip1_y*r_ip1_y + r_ip1_z*r_ip1_z);
+
+        if (mag_ri == 0.0 || mag_rip1 == 0.0) continue;
+
+        double u_i_x = r_i_x / mag_ri; double u_i_y = r_i_y / mag_ri; double u_i_z = r_i_z / mag_ri;
+        double u_ip1_x = r_ip1_x / mag_rip1; double u_ip1_y = r_ip1_y / mag_rip1; double u_ip1_z = r_ip1_z / mag_rip1;
+        
+        double cos_theta = u_i_x*u_ip1_x + u_i_y*u_ip1_y + u_i_z*u_ip1_z;
+        double cos_theta0 = cos(THETA_0);
+        
+        double f_im1_x = (K_BENDING / mag_ri) * (u_ip1_x - cos_theta0 * u_i_x);
+        double f_im1_y = (K_BENDING / mag_ri) * (u_ip1_y - cos_theta0 * u_i_y);
+        double f_im1_z = (K_BENDING / mag_ri) * (u_ip1_z - cos_theta0 * u_i_z);
+        
+        double f_ip1_x = (K_BENDING / mag_rip1) * (u_i_x - cos_theta0 * u_ip1_x);
+        double f_ip1_y = (K_BENDING / mag_rip1) * (u_i_y - cos_theta0 * u_ip1_y);
+        double f_ip1_z = (K_BENDING / mag_rip1) * (u_i_z - cos_theta0 * u_ip1_z);
+
+        F[im1_3]     += f_im1_x;
+        F[im1_3 + 1] += f_im1_y;
+        F[im1_3 + 2] += f_im1_z;
+
+        F[ip1_3]     += f_ip1_x;
+        F[ip1_3 + 1] += f_ip1_y;
+        F[ip1_3 + 2] += f_ip1_z;
+
+        F[i_3]       -= (f_im1_x + f_ip1_x);
+        F[i_3 + 1]   -= (f_im1_y + f_ip1_y);
+        F[i_3 + 2]   -= (f_im1_z + f_ip1_z);
+    }
+    
+    #ifdef FIXED
+    // Asegurar nuevamente que la primera partícula esté fija después de WLCM
+    F[0] = 0.0;
+    F[1] = 0.0;
+    F[2] = 0.0;
+    #endif
+    #endif // Fin del bloque WLCM
 }
-
-#endif
-
 
 
 double Energia_cinetica_instantanea(int N, double v[], double m){
@@ -289,7 +290,11 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
 
     // Crear carpeta de salida
     char carpeta[512];
+    #ifdef FIXED
+    snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/FIJOS/RES_IMPORTANTES", K);
+#else
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/ESCALA/RES_IMPORTANTES", K);
+#endif
 #ifdef _WIN32
     mkdir("Resultados_simulacion");
     mkdir(carpeta);
@@ -321,7 +326,6 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
     fprintf(out, "ERROR_R_EE %.6f\n", err_Ree);
     fprintf(out, "PROMEDIO_R_G %.6f\n", prom_Rg);
     fprintf(out, "ERROR_R_G %.6f\n", err_Rg);
-    fprintf(out, "ERROR_R_G %.6f\n", err_Rg);
     fprintf(out, "N_particulas %d\n", N);
     #ifdef FIXED
     fprintf(out, "F_cte %.6f\n", F_cte);
@@ -343,11 +347,7 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
 #endif
 
 
-void procesar_trayectorias_carpeta(double K, int N_start
-    #ifdef FIXED
-        , double F_cte
-    #endif
-) {
+void procesar_trayectorias_carpeta(double K, int N_start) {
     char carpeta[256];
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/%s", K, CARPETA_FIJA);
 
@@ -378,6 +378,7 @@ void procesar_trayectorias_carpeta(double K, int N_start
                 }
                 
                 #ifdef FIXED
+                double F_cte = leer_F_cte_desde_parametros(archivo_parametros);
                 procesar_trayectoria(nombre_archivo, N_start, N, K, F_cte);
                 #else
                 procesar_trayectoria(nombre_archivo, N_start, N, K);
@@ -482,4 +483,45 @@ void generar_grafica(double K) {
     closedir(dir);
 
     printf("Archivo grafica.txt creado en %s\n", carpeta);
+}
+
+// Función auxiliar para leer F_cte desde el archivo de parámetros
+double leer_F_cte_desde_parametros(const char *archivo_parametros) {
+    FILE *file = fopen(archivo_parametros, "r");
+    if (!file) {
+        printf("No se pudo abrir el archivo de parámetros: %s\n", archivo_parametros);
+        return -1.0;
+    }
+    
+    char line[256];
+    double F_cte = -1.0;
+    int fixed_encontrado = 0;
+    
+    while (fgets(line, sizeof(line), file)) {
+        // Buscar si el modo FIXED está activado
+        if (strstr(line, "Modo FIXED: SI") != NULL) {
+            fixed_encontrado = 1;
+        }
+        
+        // Buscar la línea que contiene "F_cte"
+        if (strncmp(line, "F_cte ", 6) == 0) {
+            sscanf(line, "F_cte %lf", &F_cte);
+            break;
+        }
+    }
+    
+    fclose(file);
+    
+    // Verificar que FIXED esté definido y se haya encontrado F_cte
+    if (!fixed_encontrado) {
+        printf("Advertencia: Modo FIXED no está activado en el archivo.\n");
+        return -1.0;
+    }
+    
+    if (F_cte < 0) {
+        printf("No se pudo encontrar F_cte en el archivo de parámetros.\n");
+        return -1.0;
+    }
+    
+    return F_cte;
 }

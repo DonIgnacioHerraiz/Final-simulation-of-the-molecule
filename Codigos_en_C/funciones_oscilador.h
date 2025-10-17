@@ -10,7 +10,7 @@
 
 #define L_0 1.0
 
-#define FIXED //DEFINIR SI HAY UN EXTREMO FIJO
+//#define FIXED //DEFINIR SI HAY UN EXTREMO FIJO
 
 #ifndef FIXED
 void Fuerza_verlet(int N, double x[], double F[], double K);
@@ -37,7 +37,7 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
                           );
 
 #ifdef FIXED
-void procesar_trayectorias_carpeta(double K, int N_start, double F_cte);
+void procesar_trayectorias_carpeta(double K, int N_start);
 #else
 void procesar_trayectorias_carpeta(double K, int N_start);
 #endif
@@ -46,3 +46,5 @@ void procesar_trayectorias_carpeta(double K, int N_start);
 int leer_N_desde_parametros(const char *archivo_parametros);
 
 void generar_grafica(double K);
+
+double leer_F_cte_desde_parametros(const char *archivo_parametros);

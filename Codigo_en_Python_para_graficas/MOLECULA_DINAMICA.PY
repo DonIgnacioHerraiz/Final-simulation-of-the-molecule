@@ -67,7 +67,7 @@ def animar_molecula_con_lineas(archivo, N, dt):
 
 
 # --- Uso ---
-archivo = r"Resultados_simulacion\1.0\ESCALA\V_0.txt"
-N = 4           # número de partículas
-dt = 0.1        # tiempo entre frames (coherente con counter >= 0.1 en tu simulación)
+archivo = r"Resultados_simulacion\100.0\ESCALA\V_0.txt"
+N = 16           # número de partículas
+dt = 10        # tiempo entre frames (coherente con counter >= 0.1 en tu simulación)
 animar_molecula_con_lineas(archivo, N, dt)
