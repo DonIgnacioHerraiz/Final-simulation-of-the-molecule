@@ -1,0 +1,115 @@
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+
+t_start=0.1 ##  poner mutltiplos de 0,1
+t_finish=2000 ##  poner mutltiplos de 0,1
+# --- Uso ---
+FLAG = "V"  # "V", "E-M", "R-K"
+mode = "P" # "P" para POZO, "O" para oscilador
+A = "0.5"
+
+
+
+def plot_trayectorias(prefijo, carpeta_entrada, carpeta_salida, I_start, I_finish):
+    """
+    Genera gráficas de trayectorias (x vs y) para todos los archivos que empiezan
+    con prefijo y terminan en .txt en la carpeta de entrada, y guarda las gráficas
+    en la carpeta de salida.
+    I_start: línea inicial para comenzar la representación (incluyente, basado en 0)
+    I_finish: línea final para terminar la representación (incluyente, basado en 0)
+    """
+    I_finish=int(I_finish)
+    I_start=int(I_start)
+    
+    os.makedirs(carpeta_salida, exist_ok=True)  # crear carpeta si no existe
+
+    # listar todos los archivos que empiecen con prefijo y terminen en .txt
+    archivos = sorted([f for f in os.listdir(carpeta_entrada) 
+                       if f.startswith(prefijo) and f.endswith('.txt')])
+
+    for archivo in archivos:
+        ruta_in = os.path.join(carpeta_entrada, archivo)
+
+        # leer datos
+        tiempo = []
+        posicion = []
+        with open(ruta_in, 'r') as f:
+            # saltar explícitamente la primera línea (cabecera)
+            next(f)
+            lineas = f.readlines()
+            
+            # Aplicar filtro por líneas I_start a I_finish
+            lineas_filtradas = lineas[I_start:I_finish+1]  # +1 porque el slicing es exclusivo al final
+            
+            for i, linea in enumerate(lineas_filtradas, start=I_start):
+                parts = linea.strip().split()
+                if len(parts) >= 2:
+                    try:
+                        t, x = map(float, parts[:2])
+                        tiempo.append(t)
+                        posicion.append(x)
+                    except ValueError:
+                        # ignorar líneas con texto adicionales
+                        print(f"Advertencia: línea {i} no pudo ser convertida a números en {archivo}")
+                        continue
+
+        if len(tiempo) == 0:
+            print(f"No se encontraron datos válidos en {archivo} entre líneas {I_start}-{I_finish}, se omite.")
+            continue
+
+        tiempo = np.array(tiempo)
+        posicion = np.array(posicion)
+
+        # crear figura
+        plt.figure(figsize=(8,5))
+        plt.plot(tiempo, posicion, marker='o', markersize=2, linestyle='-', color='blue', 
+                label=f'Trayectoria {archivo}\n(Líneas {I_start}-{I_finish})')
+        plt.xlabel("Tiempo")
+        plt.ylabel("Posición")
+        plt.title(f"Trayectoria de un oscilador armónico ({archivo})\nLíneas {I_start} a {I_finish}")
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+
+        # guardar figura
+        ruta_out = os.path.join(carpeta_salida, archivo.replace('.txt', '.png'))
+        plt.savefig(ruta_out, dpi=300)
+        plt.close()
+        print(f"Guardado: {ruta_out} (líneas {I_start}-{I_finish})")
+
+if mode == "O":
+    if FLAG == "V":
+        carpeta_entrada = r"Resultados_simulacion\OSCILADOR\VERLET"
+        carpeta_salida  = r"Graficas\OSCILADOR\VERLET\TRAYECTORIAS"
+    elif FLAG == "E-M":
+        carpeta_entrada = r"Resultados_simulacion\OSCILADOR\EULER-MARUYAMA"
+        carpeta_salida  = r"Graficas\OSCILADOR\EULER-MARUYAMA\TRAYECTORIAS"
+    elif FLAG == "R-K":
+        carpeta_entrada = r"Resultados_simulacion\OSCILADOR\RUNGE-KUTTA"
+        carpeta_salida  = r"Graficas\OSCILADOR\RUNGE-KUTTA\TRAYECTORIAS"
+    else:
+        raise ValueError("FLAG no válido. Debe ser 'V', 'E-M' o 'R-K'.")
+    
+    plot_trayectorias(FLAG, carpeta_entrada, carpeta_salida,t_start*10+1, t_finish*10+1)
+
+    
+elif mode == "P":
+    if FLAG == "V":
+        carpeta_entrada    = fr"Resultados_simulacion\DOBLE_POZO\VERLET\{A}"
+        carpeta_salida     = fr"Graficas\DOBLE_POZO\VERLET\{A}\TRAYECTORIAS"
+
+    elif FLAG == "E-M":
+        carpeta_entrada    = fr"Resultados_simulacion\DOBLE_POZO\EULER-MARUYAMA\{A}"
+        carpeta_salida     = fr"Graficas\DOBLE_POZO\EULER-MARUYAMA\{A}\TRAYECTORIAS"
+
+    elif FLAG == "R-K":
+        carpeta_entrada    = fr"Resultados_simulacion\DOBLE_POZO\RUNGE-KUTTA\{A}"
+        carpeta_salida     = fr"Graficas\DOBLE_POZO\RUNGE-KUTTA\{A}\TRAYECTORIAS"
+
+    else:
+        raise ValueError("FLAG no válido")
+    
+    plot_trayectorias(FLAG, carpeta_entrada, carpeta_salida,t_start*10+1, t_finish*10+1)
+
+

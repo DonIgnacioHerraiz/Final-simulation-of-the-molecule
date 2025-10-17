@@ -1,0 +1,100 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Oscilador",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "${workspaceFolder}/Codigos_en_C/oscilador.c",
+                "${workspaceFolder}/Codigos_en_C/funciones_oscilador.c",
+                "${workspaceFolder}/Codigos_en_C/integracion.c",
+                "${workspaceFolder}/Codigos_en_C/random.c",
+                "-o",
+                "${workspaceFolder}/Codigos_en_C/oscilador.exe",
+                "-lm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compila todo el proyecto de oscilador con Verlet"
+        },
+        {
+            "label": "Correr Oscilador",
+            "type": "shell",
+            "command": "${workspaceFolder}/Codigos_en_C/oscilador.exe",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Ejecuta el programa oscilador.exe"
+        },
+        {
+            "label": "Compilar Test Box-Muller",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                
+                "${workspaceFolder}/TESTS/Box-Muller/test_Box-Muller.c",
+                "${workspaceFolder}/Codigos_en_C/random.c",
+                "-I${workspaceFolder}/Codigos_en_C", // Indica la ruta del archivo random.h
+                "-o",
+                "${workspaceFolder}/TESTS/Box-Muller/test_Box-Muller.exe",
+                "-lm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compila el test del generador de números aleatorios Box-Muller"
+        },
+        {
+            "label": "Correr Test Box-Muller",
+            "type": "shell",
+            "command": "${workspaceFolder}/TESTS/Box-Muller/test_Box-Muller.exe",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Ejecuta el programa test Box-Muller.exe"
+        },
+                {
+            "label": "Compilar Doble Pozo",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "${workspaceFolder}/Codigos_en_C/doble_pozo.c",
+                "${workspaceFolder}/Codigos_en_C/funciones_oscilador.c",
+                "${workspaceFolder}/Codigos_en_C/integracion.c",
+                "${workspaceFolder}/Codigos_en_C/random.c",
+                "-o",
+                "${workspaceFolder}/Codigos_en_C/doble_pozo.exe",
+                "-lm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compila todo el proyecto de doble pozo con Verlet"
+        },
+        {
+            "label": "Correr Doble Pozo",
+            "type": "shell",
+            "command": "${workspaceFolder}/Codigos_en_C/doble_pozo.exe",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Ejecuta el programa doble_pozo.exe"
+        },
+    ]
+}
+
+
