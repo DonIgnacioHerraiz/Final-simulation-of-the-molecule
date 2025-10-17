@@ -15,14 +15,14 @@ int main() {
     inicializa_PR(12456); // Inicializa el generador con semilla
 
     // --- Parámetros físicos y numéricos ---
-    double T_fisico = 150000;
+    double T_fisico = 1500;
     double alfa = 0.5;
     double h = 0.001;
     double kb = 1.0;
     double Temperatura = 1.0;
     double dt = h;
     double m = 1.0;
-    double K = 1000.0;
+    double K = 100.0;
     int pasos = (int)(T_fisico / dt);
 
     // --- Conjuntos de tamaños de cadena ---

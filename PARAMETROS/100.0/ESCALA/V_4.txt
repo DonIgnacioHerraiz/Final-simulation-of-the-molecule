@@ -401,3 +401,57 @@ v_0_190 0
 v_0_191 0
 
 tiempo de simulacion	1387.364000
+
+tiempo de simulacion	0.922000
+
+tiempo de simulacion	1.930000
+
+tiempo de simulacion	3.898000
+
+tiempo de simulacion	7.820000
+
+tiempo de simulacion	0.928000
+
+tiempo de simulacion	2.027000
+
+tiempo de simulacion	3.883000
+
+tiempo de simulacion	1.030000
+
+tiempo de simulacion	1.934000
+
+tiempo de simulacion	3.892000
+
+tiempo de simulacion	7.671000
+
+tiempo de simulacion	15.256000
+
+tiempo de simulacion	0.949000
+
+tiempo de simulacion	1.935000
+
+tiempo de simulacion	3.839000
+
+tiempo de simulacion	7.694000
+
+tiempo de simulacion	15.375000
+
+tiempo de simulacion	0.935000
+
+tiempo de simulacion	1.970000
+
+tiempo de simulacion	3.901000
+
+tiempo de simulacion	7.734000
+
+tiempo de simulacion	15.391000
+
+tiempo de simulacion	0.940000
+
+tiempo de simulacion	2.173000
+
+tiempo de simulacion	3.930000
+
+tiempo de simulacion	7.771000
+
+tiempo de simulacion	15.451000

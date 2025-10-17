@@ -183,11 +183,21 @@ void escribe_input_verlet(double kb, double Temperatura, double alfa, int N, dou
     char buffer[256];
 
     #ifdef FIXED
+    #ifdef WLCM
+    sprintf(buffer, "PARAMETROS/WLCM/%.1f/FIJOS", K);
+    const char* folder = buffer;
+    #else
     sprintf(buffer, "PARAMETROS/%.1f/FIJOS", K);
     const char* folder = buffer;
+    #endif
     #else 
+    #ifdef WLCM
+    sprintf(buffer, "PARAMETROS/WLCM/%.1f/ESCALA", K);
+    const char* folder = buffer;
+    #else
     sprintf(buffer, "PARAMETROS/%.1f/ESCALA", K);
     const char* folder = buffer;
+    #endif
     #endif
 
     FILE* file;
@@ -291,11 +301,21 @@ void Verlet(double K, double kb, double Temperatura, double alfa, int N, double 
     // --- Selección de carpeta de salida ---
     char buffer[256];
     #ifdef FIXED
+    #ifdef WLCM
+    sprintf(buffer, "Resultados_simulacion/WLCM/%.1f/FIJOS", K);
+    const char* folder = buffer;
+    #else
     sprintf(buffer, "Resultados_simulacion/%.1f/FIJOS", K);
     const char* folder = buffer;
+    #endif
     #else 
+    #ifdef WLCM
+    sprintf(buffer, "Resultados_simulacion/WLCM/%.1f/ESCALA", K);
+    const char* folder = buffer;
+    #else
     sprintf(buffer, "Resultados_simulacion/%.1f/ESCALA", K);
     const char* folder = buffer;
+    #endif
     #endif
     
 

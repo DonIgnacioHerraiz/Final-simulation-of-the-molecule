@@ -2,8 +2,6 @@
 #include <sys/stat.h> // mkdir
 #include <sys/types.h>
 
-#define K_BENDING 10.0
-#define THETA_0 M_PI_2 // Ángulo de equilibrio de 90 grados
 
 // Declaración condicional basada en FIXED
 #ifdef FIXED
@@ -291,10 +289,18 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
     // Crear carpeta de salida
     char carpeta[512];
     #ifdef FIXED
+    #ifdef WLCM
+    snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/WLCM/%.1f/FIJOS/RES_IMPORTANTES", K);
+    #else
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/FIJOS/RES_IMPORTANTES", K);
+    #endif
 #else
+    #ifdef WLCM
+    snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/WLCM/%.1f/ESCALA/RES_IMPORTANTES", K);
+    #else
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/ESCALA/RES_IMPORTANTES", K);
-#endif
+    #endif
+    #endif
 #ifdef _WIN32
     mkdir("Resultados_simulacion");
     mkdir(carpeta);
@@ -349,7 +355,11 @@ void procesar_trayectoria(char* archivo_input, int N_start, int N, double K
 
 void procesar_trayectorias_carpeta(double K, int N_start) {
     char carpeta[256];
+    #ifdef WLCM
+    snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/WLCM/%.1f/%s", K, CARPETA_FIJA);
+    #else
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/%s", K, CARPETA_FIJA);
+    #endif
 
     DIR *dir = opendir(carpeta);
     if (!dir) {
@@ -368,8 +378,11 @@ void procesar_trayectorias_carpeta(double K, int N_start) {
                 
                 // Construir ruta al archivo de parámetros
                 char archivo_parametros[512];
+                #ifdef WLCM
+                snprintf(archivo_parametros, sizeof(archivo_parametros), "PARAMETROS/WLCM/%.1f/%s/%s", K, CARPETA_FIJA, entry->d_name);
+                #else
                 snprintf(archivo_parametros, sizeof(archivo_parametros), "PARAMETROS/%.1f/%s/%s", K, CARPETA_FIJA, entry->d_name);
-                
+                #endif
                 // Leer N desde el archivo de parámetros
                 int N = leer_N_desde_parametros(archivo_parametros);
                 if (N <= 0) {
@@ -420,7 +433,11 @@ int leer_N_desde_parametros(const char *archivo_parametros) {
 
 void generar_grafica(double K) {
     char carpeta[256];
+    #ifdef WLCM
+    snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/WLCM/%.1f/%s", K, CARPETA_IMPORTANTE);
+    #else
     snprintf(carpeta, sizeof(carpeta), "Resultados_simulacion/%.1f/%s", K, CARPETA_IMPORTANTE);
+    #endif
 
     DIR *dir = opendir(carpeta);
     if (!dir) {

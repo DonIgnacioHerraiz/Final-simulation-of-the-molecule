@@ -12,6 +12,12 @@
 
 //#define FIXED //DEFINIR SI HAY UN EXTREMO FIJO
 
+#define WLCM  //DEFINIR SI SE USA EL MODELO WORM-LIKE CHAIN
+#define K_BENDING 10.0
+#define THETA_0 0 // Ángulo de equilibrio de 0 grados
+
+
+
 #ifndef FIXED
 void Fuerza_verlet(int N, double x[], double F[], double K);
 #else
