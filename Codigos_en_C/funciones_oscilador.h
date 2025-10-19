@@ -11,11 +11,12 @@
 #define L_0 1.0
 
 //#define FIXED //DEFINIR SI HAY UN EXTREMO FIJO
-
+#define FIXED
+/*
 #define WLCM  //DEFINIR SI SE USA EL MODELO WORM-LIKE CHAIN
 #define K_BENDING 10.0
 #define THETA_0 0 // Ángulo de equilibrio de 0 grados
-
+*/
 
 
 #ifndef FIXED

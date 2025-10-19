@@ -1,0 +1,46 @@
+# Archivo de parámetros para simulación de Verlet
+# Generado automáticamente por escribe_input_verlet()
+# -----------------------------------------------
+
+K 1000
+kb 1
+Temperatura 1
+alfa 0.5
+N 4
+dt 0.0003
+m 1
+pasos 5000000
+Modo FIXED: SI
+F_cte 0.00215443
+# Nota: La primera partícula está fija.
+# Se aplica una fuerza constante F_cte en la dirección z sobre la última partícula.
+
+# Posiciones iniciales:
+x_0_0 0
+x_0_1 0
+x_0_2 0
+x_0_3 1
+x_0_4 0
+x_0_5 0
+x_0_6 2
+x_0_7 0
+x_0_8 0
+x_0_9 3
+x_0_10 0
+x_0_11 0
+
+# Velocidades iniciales:
+v_0_0 0
+v_0_1 0
+v_0_2 0
+v_0_3 0
+v_0_4 0
+v_0_5 0
+v_0_6 0
+v_0_7 0
+v_0_8 0
+v_0_9 0
+v_0_10 0
+v_0_11 0
+
+tiempo de simulacion	2.842000
